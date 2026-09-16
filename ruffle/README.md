@@ -16,8 +16,7 @@ Ruffle tracks this as an open limitation (issues #14300, #21709).
 
 ## What the patch changes
 
-Two Papervision3D classes inside the SWF are replaced with the versions in
-`patch/`:
+Three classes inside the SWF are replaced with the versions in `patch/`:
 
 - `core/geom/TriangleMesh3D.as`: scenery triangles get classic per-corner UVs
   copied from the vertex UVT data, skip the `drawTriangles` path, and enable
@@ -27,6 +26,11 @@ Two Papervision3D classes inside the SWF are replaced with the versions in
   to 30 world units in front of the camera. With the original value, clipped
   vertices projected to screen coordinates in the millions, which the
   subdivision renderer cannot resolve; the ground simply vanished.
+
+- `RockRacer.as` (the game's main class): the stage scale mode changes from
+  `NO_SCALE` to `SHOW_ALL`, so the game scales to whatever window or browser
+  element it is given instead of staying pinned to 760x500 in the top-left
+  corner. Needed for the browser build; harmless on desktop.
 
 Nothing else in the game is touched. Game logic, data files and inputs are
 identical.
