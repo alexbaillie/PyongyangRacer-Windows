@@ -1,25 +1,37 @@
 # Pyongyang Racer for Windows
 
-A standalone Windows package of **Pyongyang Racer**, the 2012 browser racing game. Download, extract, double-click, play. No Flashpoint, no browser plugin, no separate runtime to install.
+A standalone package of **Pyongyang Racer**, the 2012 browser racing game, for Windows and macOS. Download, extract, double-click, play. No Flashpoint, no browser plugin, no separate runtime to install.
 
-> **Beta testers:** please read [Quick start](#quick-start) and [Reporting a problem](#reporting-a-problem). Everything else is optional.
+> **Beta testers:** please read [Quick start](#quick-start) (Windows) or [macOS](#macos) and [Reporting a problem](#reporting-a-problem). Everything else is optional.
 
 ---
 
-## Quick start
+## Quick start (Windows)
 
-1. **Download the latest `PyongyangRacer-Windows-*.zip`** from the [Releases page](https://github.com/alexbaillie/PyongyangRacer-Windows/releases/latest).
+1. **Download the latest `PyongyangRacer-Windows-*.zip`** from the [Releases page](https://github.com/alexbaillie/PyongyangRacer-Windows/releases/latest). Mac users: see [macOS](#macos) below.
 2. **Extract the whole ZIP** to a normal folder, for example your Desktop or Documents. Do not run the game from inside the ZIP window.
 3. Open the extracted folder and **double-click `Launch Pyongyang Racer.exe`**.
 4. The game opens in its own window. Close that window when you are done.
 
 That is it. The first launch can take a few seconds while the game loads its assets.
 
+## macOS
+
+1. **Download the latest `PyongyangRacer-macOS-*.tar.gz`** from the [Releases page](https://github.com/alexbaillie/PyongyangRacer-Windows/releases/latest).
+2. **Double-click the file** to extract it. You get a `PyongyangRacer-macOS` folder.
+3. Open that folder and **double-click `Ruffle.app`**. If macOS asks whether to open an app downloaded from the internet, click **Open**. This happens once.
+4. In Ruffle, choose **File > Open...** and pick `pyracer.swf` from the same folder. Dragging the file onto the Ruffle window also works.
+5. Click "go now!" on the welcome screen after the intro.
+
+Works on Intel and Apple Silicon Macs, macOS 11 or later. Keep all the files together in the folder; the game loads its data from next to `pyracer.swf`.
+
+The Mac build runs the game in [Ruffle](https://ruffle.rs), an open-source Flash player, instead of Adobe's projector. Ruffle cannot yet draw one thing the game relies on, so the Mac copy of `pyracer.swf` carries a small rendering patch. Details are in [ruffle/README.md](ruffle/README.md). Gameplay, tracks and controls are identical.
+
 ## Requirements
 
 | | |
 |---|---|
-| Operating system | Windows 10 or Windows 11 |
+| Operating system | Windows 10 or 11, or macOS 11 or later |
 | Extra software | None. Everything needed is in the folder. |
 | Internet | Not needed. The game runs entirely offline. |
 
@@ -45,6 +57,12 @@ Open `launch.log` in the game folder. It records exactly what the launcher did o
 
 **Game window opens but stays black or silent**
 Wait ten seconds; the sound and graphics files load after the window appears. If it is still black, check `launch.log` for lines that do not start with `200`.
+
+**macOS: "Ruffle.app can't be opened" or "is damaged"**
+Ruffle is signed and notarized, so this should not happen. If it does, re-download the `.tar.gz` and extract it by double-clicking in Finder rather than with a third-party tool. On macOS 15 or later, look in System Settings > Privacy & Security for an **Open Anyway** button.
+
+**macOS: game opens but scenery looks wrong**
+Make sure you opened the `pyracer.swf` from the Mac download, not the one from the Windows zip. Only the Mac copy has the Ruffle rendering patch.
 
 **Antivirus quarantined the launcher**
 Some antivirus tools flag small unsigned programs. Restore the file and add the game folder as an exception, or build the launcher yourself from source (see [For developers](#for-developers)).
@@ -82,7 +100,8 @@ Every launch is logged to `launch.log`.
 | `common.txt`, `info.txt` | Game text and the landmark descriptions shown while driving. |
 | `PreGame.mp3` | Menu music. |
 | `launch.log` | Created on each run. Useful for bug reports. |
-| `launcher/` | Source code for the launcher. Not needed to play. |
+| `launcher/` | Source code for the Windows launcher. Not needed to play. |
+| `ruffle/` | Patched `pyracer.swf` used by the Mac build, plus the patch sources. |
 
 ## For developers
 
@@ -96,4 +115,4 @@ This compiles `launcher/Program.cs` with the built-in .NET Framework compiler an
 
 ## Notes
 
-This private repository exists for archival and personal-use purposes. The game and bundled assets remain the property of their respective owners. Please do not redistribute the package outside the beta group.
+This repository exists for archival and personal-use purposes. The game and bundled assets remain the property of their respective owners. Please do not redistribute the package outside the beta group.
