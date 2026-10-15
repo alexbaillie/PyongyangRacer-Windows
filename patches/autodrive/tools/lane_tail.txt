@@ -351,7 +351,7 @@ for (ws, we) in runs:
         da_ = (lane[ia][0] - lane[(ia - 1) % nstat][0], lane[ia][1] - lane[(ia - 1) % nstat][1])
         db_ = (lane[(ib + 1) % nstat][0] - lane[ib][0], lane[(ib + 1) % nstat][1] - lane[ib][1])
         turn_ = abs(math.degrees(math.atan2(da_[0] * db_[1] - da_[1] * db_[0], da_[0] * db_[0] + da_[1] * db_[1])))
-        if turn_ < 0.0:
+        if turn_ < 25.0:
             print("  window %d..%d: gentle bend (%.0f deg), keeping the lane line as it is" % (ws, we, turn_)); continue
     fl = fillet_path(ia, ib, t_cap=1500.0 if has_circle else None)
     if fl is not None:
@@ -574,9 +574,9 @@ def simulate(params, caps):
 best = None; table = []
 for omega in (0.12, 0.16, 0.2, 0.25):
     caps = curvature_caps(omega)
-    for LA_MIN in (250, 350):
-        for LA_MAX in (700, 900):
-            for LA_K in (2.0, 3.0):
+    for LA_MIN in (250,):
+        for LA_MAX in (900,):
+            for LA_K in (3.0,):
                 for GAIN in (0.3, 0.4):
                     r = simulate((LA_MIN, LA_MAX, LA_K, GAIN, 40), caps); r['omega'] = omega
                     table.append(r)
