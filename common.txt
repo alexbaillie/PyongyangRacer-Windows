@@ -51,7 +51,7 @@ $GAME_FINAL#FINAL LAP
 $GAME_LAPE_GO#GO
 $GAME_WRONG#WRONG WAY
 
-$TURN_FORWARD#Drive straight on. Don't stare at me, I'm on duty.
+$TURN_FORWARD#Drive straight on. Don't stare at me, I'm on duty!
 $TURN_RIGHT#Turn right. Have you just passed your test?.
 $TURN_LEFT#Turn left. You shouldn't be allowed on the road!.
 $TURN_WARRING#Your going the wrong way! Go back or else....

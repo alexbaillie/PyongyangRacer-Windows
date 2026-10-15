@@ -32,7 +32,18 @@ namespace PyongyangRacerLauncher
                 { "PreGame.mp3", "PreGame.mp3" },
                 { "pyracer.swf", "pyracer.swf" },
                 { "sound.dat", "sound.dat" },
-                { "symbol.dat", "symbol.dat" }
+                { "symbol.dat", "symbol.dat" },
+                { "photo/26.png", "photo/26.png" },
+                { "photo/30.png", "photo/30.png" },
+                { "photo/40.png", "photo/40.png" },
+                { "photo/44.png", "photo/44.png" },
+                { "photo/50.png", "photo/50.png" },
+                { "photo/54.png", "photo/54.png" },
+                { "photo/67.png", "photo/67.png" },
+                { "photo/71.png", "photo/71.png" },
+                { "photo/90.png", "photo/90.png" },
+                { "photo/100.png", "photo/100.png" },
+                { "photo/112.png", "photo/112.png" }
             };
 
         private static readonly Dictionary<string, string> ContentTypes =
@@ -40,6 +51,7 @@ namespace PyongyangRacerLauncher
             {
                 { ".dat", "application/octet-stream" },
                 { ".mp3", "audio/mpeg" },
+                { ".png", "image/png" },
                 { ".swf", "application/x-shockwave-flash" },
                 { ".txt", "text/plain; charset=utf-8" }
             };

@@ -1,0 +1,6 @@
+# Keep the game data files byte-for-byte. The game splits common.txt on CRLF.
+*.txt -text
+*.dat -text
+*.png binary
+*.swf binary
+*.mp3 binary
