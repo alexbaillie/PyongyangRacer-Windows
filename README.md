@@ -25,7 +25,7 @@ That is it. The first launch can take a few seconds while the game loads its ass
 
 Works on Intel and Apple Silicon Macs, macOS 11 or later. Keep all the files together in the folder; the game loads its data from next to `pyracer.swf`.
 
-The Mac build runs the game in [Ruffle](https://ruffle.rs), an open-source Flash player, instead of Adobe's projector. Ruffle cannot yet draw one thing the game relies on, so the Mac copy of `pyracer.swf` carries a small rendering patch. Details are in [ruffle/README.md](ruffle/README.md). Gameplay, tracks and controls are identical.
+The Mac build runs the game in [Ruffle](https://ruffle.rs), an open-source Flash player, instead of Adobe's projector. Ruffle cannot yet draw one thing the game relies on, so the Mac copy of `pyracer.swf` carries a small rendering patch. Details are in [patches/README.md](patches/README.md). Gameplay, tracks and controls are identical.
 
 ## Requirements
 
@@ -43,6 +43,8 @@ The Mac build runs the game in [Ruffle](https://ruffle.rs), an open-source Flash
 | Down arrow | Brake |
 | Left / Right arrows | Steer |
 | Space | Horn |
+
+**Autodrive cheat.** During a race, tap **Up, Down, Up, Up, Down, Down** on the arrow keys within a couple of seconds. The car then drives itself round the course at top speed in the lane just right of the yellow centre line, never leaves the road, only changes lane to get past a slower car, and never runs out of fuel. A message on screen confirms it. Tap the same sequence again to take back control.
 
 ## Troubleshooting
 
@@ -95,13 +97,14 @@ Every launch is logged to `launch.log`.
 |---|---|
 | `Launch Pyongyang Racer.exe` | Start here. The launcher. |
 | `PyongyangRacer.exe` | Adobe Flash standalone projector that runs the game. |
-| `pyracer.swf` | The game itself. |
+| `pyracer.swf` | The game itself, with the autodrive cheat added (see `patches/`). |
 | `1.dat`, `common.dat`, `symbol.dat`, `sound.dat` | Game graphics and audio data. |
 | `common.txt`, `info.txt` | Game text and the landmark descriptions shown while driving. |
 | `PreGame.mp3` | Menu music. |
 | `launch.log` | Created on each run. Useful for bug reports. |
 | `launcher/` | Source code for the Windows launcher. Not needed to play. |
-| `ruffle/` | Patched `pyracer.swf` used by the Mac build, plus the patch sources. |
+| `ruffle/` | The Mac copy of `pyracer.swf`, which also carries the Ruffle rendering patch. |
+| `patches/` | The untouched original game, the patch sources, and a build script. Not needed to play. |
 
 ## For developers
 
@@ -112,6 +115,8 @@ The launcher is a single C# file with no dependencies beyond the .NET Framework 
 ```
 
 This compiles `launcher/Program.cs` with the built-in .NET Framework compiler and overwrites `Launch Pyongyang Racer.exe`.
+
+The two `pyracer.swf` files are the original game with a handful of ActionScript classes replaced. [patches/README.md](patches/README.md) explains each change and how to rebuild them with `patches/build.ps1`.
 
 ## Notes
 
