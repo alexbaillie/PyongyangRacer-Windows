@@ -44,7 +44,7 @@ The Mac build runs the game in [Ruffle](https://ruffle.rs), an open-source Flash
 | Left / Right arrows | Steer |
 | Space | Horn |
 
-**Autodrive cheat.** During a race, tap **Up, Down, Up, Up, Down, Down** on the arrow keys within a couple of seconds. The car then drives itself round the course at top speed in the lane just right of the yellow centre line, never leaves the road, only changes lane to get past a slower car, and never runs out of fuel. A message on screen confirms it. Tap the same sequence again to take back control.
+**Autodrive cheat.** During a race, press **F**. The car then drives itself round the course, 75% faster than normal, in the lane just right of the yellow centre line, never leaves the road, only changes lane to get past a slower car, and never runs out of fuel. A message on screen confirms it. Press **F** again to take back control.
 
 ## Troubleshooting
 

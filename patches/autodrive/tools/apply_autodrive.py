@@ -28,6 +28,8 @@ fields_new = fields_old + """
 
       private var m_CheatLastTime:int = 0;
 
+      private var m_FHeld:Boolean = false;
+
       private var m_CheatMsg:Sprite = null;
 
       private var m_CheatMsgText:TextField = null;
@@ -79,13 +81,10 @@ keydown_old = """      public function KeyDownHandler(param1:KeyboardEvent) : vo
 keydown_new = """      public function KeyDownHandler(param1:KeyboardEvent) : void
       {
          this.preKeyMask = this.KeyMask;
-         if(param1.keyCode == Keyboard.UP && !(this.KeyMask & KEY_UP))
+         if(param1.keyCode == 70 && !this.m_FHeld)
          {
-            this.RecordCheatKey(KEY_UP);
-         }
-         else if(param1.keyCode == Keyboard.DOWN && !(this.KeyMask & KEY_DOWN))
-         {
-            this.RecordCheatKey(KEY_DOWN);
+            this.m_FHeld = true;
+            this.TryToggleAutoDrive();
          }
          switch(param1.keyCode)
 """
@@ -117,6 +116,21 @@ coll_new = """               if(!this.IsAutoDriveGhostPair(this.m_Object[_loc3_]
                {
 """
 
+keyup_old = """      public function KeyUpHandler(param1:KeyboardEvent) : void
+      {
+         this.preKeyMask = this.KeyMask;
+         switch(param1.keyCode)
+"""
+keyup_new = """      public function KeyUpHandler(param1:KeyboardEvent) : void
+      {
+         this.preKeyMask = this.KeyMask;
+         if(param1.keyCode == 70)
+         {
+            this.m_FHeld = false;
+         }
+         switch(param1.keyCode)
+"""
+
 restart_old = """         this.oil = this.maxOil;
          this.m_scMask.gotoAndStop(0);
 """
@@ -146,26 +160,11 @@ destroy_new = """      public function DestroyScene() : void
 """
 
 funcs_old = "      public function addOil() : void\n"
-funcs_new = """      private function RecordCheatKey(param1:Number) : void
+funcs_new = """      private function TryToggleAutoDrive() : void
       {
-         var _loc2_:int = getTimer();
-         if(_loc2_ - this.m_CheatLastTime > 2000)
+         if(this.m_RenderMode == RENDER_PLAYING && !this.pause && this.m_CarList.length > this.m_PlayerID)
          {
-            this.m_CheatBuf.splice(0);
-         }
-         this.m_CheatLastTime = _loc2_;
-         this.m_CheatBuf.push(param1);
-         while(this.m_CheatBuf.length > 6)
-         {
-            this.m_CheatBuf.shift();
-         }
-         if(this.m_CheatBuf.length == 6 && this.m_CheatBuf[0] == KEY_UP && this.m_CheatBuf[1] == KEY_DOWN && this.m_CheatBuf[2] == KEY_UP && this.m_CheatBuf[3] == KEY_UP && this.m_CheatBuf[4] == KEY_DOWN && this.m_CheatBuf[5] == KEY_DOWN)
-         {
-            this.m_CheatBuf.splice(0);
-            if(this.m_RenderMode == RENDER_PLAYING && !this.pause && this.m_CarList.length > this.m_PlayerID)
-            {
-               this.ToggleAutoDrive();
-            }
+            this.ToggleAutoDrive();
          }
       }
 
@@ -185,13 +184,15 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
             this.m_AutoCardShift = 0;
             this.m_AutoPrevTurn = 0;
             this.m_AutoHold = 0;
-            this.ShowCheatMessage("Autodrive + unlimited fuel enabled");
+            this.SetAutoBoost(true);
+            this.ShowCheatMessage("Autodrive + unlimited fuel + 75% speed enabled");
          }
          else
          {
             _loc1_.StopAccel();
             _loc1_.ReturnCenter();
-            this.ShowCheatMessage("Autodrive + unlimited fuel disabled");
+            this.SetAutoBoost(false);
+            this.ShowCheatMessage("Autodrive + unlimited fuel + 75% speed disabled");
          }
       }
 
@@ -369,7 +370,7 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
                _loc9_ = _loc5_.currState.loc.z - param2;
                _loc10_ = _loc8_ * this.m_AutoTanX + _loc9_ * this.m_AutoTanZ;
                _loc11_ = _loc8_ * this.m_AutoTanZ - _loc9_ * this.m_AutoTanX;
-               if(_loc10_ > -250 && _loc10_ < 3200 && Math.abs(_loc11_) < 950 && _loc10_ < _loc6_)
+               if(_loc10_ > -300 && _loc10_ < 5200 && Math.abs(_loc11_) < 950 && _loc10_ < _loc6_)
                {
                   _loc6_ = _loc10_;
                   _loc7_ = param3 + _loc11_;
@@ -505,11 +506,11 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          _loc24_ = this.AutoCardShift(_loc3_,_loc4_,this.m_AutoShift + this.m_AutoCardShift);
          if(this.m_AutoCardShift < _loc24_)
          {
-            this.m_AutoCardShift = Math.min(_loc24_,this.m_AutoCardShift + 22);
+            this.m_AutoCardShift = Math.min(_loc24_,this.m_AutoCardShift + 40);
          }
          else if(this.m_AutoCardShift > _loc24_)
          {
-            this.m_AutoCardShift = Math.max(_loc24_,this.m_AutoCardShift - 22);
+            this.m_AutoCardShift = Math.max(_loc24_,this.m_AutoCardShift - 40);
          }
          _loc22_ = this.m_AutoTanZ * (this.m_AutoShift + this.m_AutoCardShift);
          _loc23_ = -this.m_AutoTanX * (this.m_AutoShift + this.m_AutoCardShift);
@@ -574,8 +575,23 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          return true;
       }
 
+      private function SetAutoBoost(param1:Boolean) : void
+      {
+         var _loc2_:RCar = null;
+         if(this.m_CarList != null && this.m_PlayerID >= 0 && this.m_CarList.length > this.m_PlayerID)
+         {
+            _loc2_ = this.m_CarList[this.m_PlayerID];
+            if(_loc2_ != null)
+            {
+               _loc2_.m_MaxVel = param1 ? 300 * 1.75 : 300;
+               _loc2_.m_Accel = param1 ? 20 * 1.75 : 20;
+            }
+         }
+      }
+
       private function ResetAutoDrive() : void
       {
+         this.SetAutoBoost(false);
          this.m_AutoDrive = false;
          this.m_CheatBuf.splice(0);
          this.HideCheatMessage();
@@ -641,6 +657,7 @@ for _k, _v in (("@LA_MIN@", PARAMS["la_min"]), ("@LA_MAX@", PARAMS["la_max"]), (
 patch(gc, [
     (fields_old, fields_new),
     (keydown_old, keydown_new),
+    (keyup_old, keyup_new),
     (input_old, input_new),
     (coll_old, coll_new),
     (restart_old, restart_new),

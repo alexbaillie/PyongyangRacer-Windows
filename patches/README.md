@@ -14,12 +14,13 @@ the computer cars are the original game's.
 
 ## autodrive
 
-A toggle the player switches on during a race by tapping the arrow keys
-**Up, Down, Up, Up, Down, Down** (fresh presses, within about two seconds).
-Entering it again switches it off. A message in the middle of the screen
+A toggle the player switches on during a race by pressing **F**
+(a fresh press, not held). Pressing it again switches it off. A message in the middle of the screen
 confirms each change for five seconds.
 
 While on:
+
+- The car's top speed and acceleration are raised by 75% (max 300 to 525).
 
 - The car drives itself along a pre-computed **right-hand-lane line**: the lane
   immediately to the right of the double yellow centre line, all the way round
