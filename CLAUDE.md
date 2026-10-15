@@ -1,0 +1,57 @@
+# Pyongyang Racer (Windows and macOS package)
+
+A packaged copy of the 2012 Flash racing game. There is no application source to compile except the small C# launcher. The game itself is a prebuilt SWF that we patch.
+
+## Layout
+
+- `pyracer.swf`: game for Windows (Adobe Flash projector). Built from the original plus the `autodrive` patch.
+- `ruffle/pyracer.swf`: game for macOS (Ruffle). Built from the original plus the `ruffle` and `autodrive` patches.
+- `patches/original/pyracer.swf`: untouched original. Never edit it; every shipped SWF is rebuilt from it.
+- `patches/autodrive/`, `patches/ruffle/`: replacement ActionScript classes, laid out by package path. `patches/README.md` explains every change.
+- `launcher/Program.cs`: Windows launcher. Serves the game files from a loopback HTTP server and starts `PyongyangRacer.exe` (Adobe projector).
+- `1.dat`, `common.dat`, `sound.dat`, `symbol.dat`, `common.txt`, `info.txt`, `PreGame.mp3`, `photo/*.png`: game data. Do not modify.
+
+## Build
+
+No test suite, linter or CI exists. Verification is by running the game.
+
+Rebuild the launcher (needs only the .NET Framework compiler that ships with Windows; overwrites `Launch Pyongyang Racer.exe`):
+
+```powershell
+.\launcher\build.ps1
+```
+
+Rebuild both patched SWFs (needs Java 11+ and JPEXS `ffdec.jar` 26.x, neither is in the repo):
+
+```powershell
+.\patches\build.ps1 -FfdecJar C:\path\to\ffdec.jar
+```
+
+To change game logic: decompile `patches/original/pyracer.swf` with FFDec (`-export script`), copy the class you need into the right `patches/` folder, edit it, rebuild.
+
+## Run and test
+
+- Windows: double-click `Launch Pyongyang Racer.exe`, or run it from PowerShell. It writes `launch.log` (git-ignored); check it for 404s and errors.
+- macOS build: open `ruffle/pyracer.swf` in Ruffle 0.6.0 (File > Open).
+- After any SWF change, play a race in both players. The autodrive cheat is toggled with Up, Down, Up, Up, Down, Down.
+
+## Release
+
+Releases are GitHub Releases with two assets: `PyongyangRacer-Windows-<version>.zip` (repo root minus `patches/`, `ruffle/`, git files) and `PyongyangRacer-macOS-<version>.tar.gz` (`ruffle/pyracer.swf`, data files, `photo/`, notarized Ruffle.app). Keep the download links in the release notes pointing at the new tag.
+
+## Rules that are easy to break
+
+- `common.txt` and `info.txt` must keep Windows (CRLF) line endings. The game splits `common.txt` on `\r\n`; with bare `\n` every game string loads empty. `.gitattributes` marks them `-text`. Edit them without changing line endings.
+- Any new file the game loads at runtime must be added to the whitelist in `launcher/Program.cs` (`AllowedFiles`), or the launcher returns 404.
+- Do not hand-edit the shipped SWFs. Change `patches/` and rebuild.
+- Windows and Mac SWFs differ: the Mac one carries the Ruffle rendering patch (Ruffle ignores `drawTriangles` UVT data). Keep both in sync for gameplay changes.
+
+## Coding standards
+
+No formatter or style guide is configured. Match what is there:
+
+- C# (`launcher/`): .NET Framework only, no external packages, 4-space indent, `PascalCase` methods, private static fields, braces on their own line, validate input and log through the existing `Log` helper.
+- ActionScript patches: keep FFDec's decompiled style (3-space indent, `_loc1_`-style locals, `param1` parameters) so diffs against the decompiled original stay readable. Add new members with clear names.
+- Python tools (`patches/autodrive/tools/`): standard library plus Pillow, NumPy and SciPy; Python 3.
+- PowerShell: `$ErrorActionPreference = 'Stop'`, resolve paths from `$PSScriptRoot`.
+- Commit messages: imperative summary line, then a short explanation of why.

@@ -5,6 +5,10 @@ AUTO_LINE = io.open(line_file, encoding="utf-8").read().strip()
 extra_file = os.path.join(os.path.dirname(line_file), "lane_extra_as3.txt")
 AUTO_EXTRA = io.open(extra_file, encoding="utf-8").read().strip()
 assert AUTO_EXTRA.count(",") + 1 == (AUTO_LINE.count(",") + 1) // 2, "AUTO_EXTRA length must equal the number of line points"
+AUTO_SPEED = io.open(os.path.join(os.path.dirname(line_file), "lane_speed_as3.txt"), encoding="utf-8").read().strip()
+assert AUTO_SPEED.count(",") + 1 == AUTO_EXTRA.count(",") + 1, "AUTO_SPEED length must equal the number of line points"
+import json
+PARAMS = json.load(io.open(os.path.join(os.path.dirname(line_file), "lane_params.json"), encoding="utf-8"))
 
 def patch(path, edits):
     s = io.open(path, encoding="utf-8").read()
@@ -57,6 +61,14 @@ fields_new = fields_old + """
       private var m_AutoBlockDist:Number = 1e9;
 
       private var m_AutoBlockSpeed:Number = 0;
+
+      public static const AUTO_SPEED:Array = """ + AUTO_SPEED + """;
+
+      private var m_AutoCool:int = 0;
+
+      private var m_AutoCardShift:Number = 0;
+
+      private var m_AutoPrevTurn:Number = 0;
 """
 
 keydown_old = """      public function KeyDownHandler(param1:KeyboardEvent) : void
@@ -169,6 +181,9 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
             _loc1_.m_AutoLastGood = null;
             this.m_AutoShift = 0;
             this.m_AutoShiftTarget = 0;
+            this.m_AutoCool = 0;
+            this.m_AutoCardShift = 0;
+            this.m_AutoPrevTurn = 0;
             this.m_AutoHold = 0;
             this.ShowCheatMessage("Autodrive + unlimited fuel enabled");
          }
@@ -335,6 +350,52 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          return _loc15_;
       }
 
+      private function AutoCardShift(param1:Number, param2:Number, param3:Number) : Number
+      {
+         var _loc4_:int = 0;
+         var _loc5_:RGameEnt = null;
+         var _loc6_:Number = 1e9;
+         var _loc7_:Number = 0;
+         var _loc8_:Number = NaN;
+         var _loc9_:Number = NaN;
+         var _loc10_:Number = NaN;
+         var _loc11_:Number = NaN;
+         while(_loc4_ < this.m_Object.length)
+         {
+            _loc5_ = this.m_Object[_loc4_];
+            if(_loc5_.m_ObjType == RObjectType.TREE1 && _loc5_.hit)
+            {
+               _loc8_ = _loc5_.currState.loc.x - param1;
+               _loc9_ = _loc5_.currState.loc.z - param2;
+               _loc10_ = _loc8_ * this.m_AutoTanX + _loc9_ * this.m_AutoTanZ;
+               _loc11_ = _loc8_ * this.m_AutoTanZ - _loc9_ * this.m_AutoTanX;
+               if(_loc10_ > -250 && _loc10_ < 3200 && Math.abs(_loc11_) < 950 && _loc10_ < _loc6_)
+               {
+                  _loc6_ = _loc10_;
+                  _loc7_ = param3 + _loc11_;
+               }
+            }
+            _loc4_++;
+         }
+         if(_loc6_ > 100000000)
+         {
+            return 0;
+         }
+         if(_loc7_ > 90)
+         {
+            _loc7_ -= 90;
+         }
+         else if(_loc7_ < -90)
+         {
+            _loc7_ += 90;
+         }
+         else
+         {
+            _loc7_ = 0;
+         }
+         return Math.max(-420,Math.min(420,_loc7_ - this.m_AutoShift));
+      }
+
       private function AutoDriveLoop() : void
       {
          var _loc1_:RCar = this.m_CarList[this.m_PlayerID];
@@ -345,6 +406,8 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          var _loc21_:Number = NaN;
          var _loc22_:Number = NaN;
          var _loc23_:Number = NaN;
+         var _loc24_:Number = NaN;
+         var _loc25_:Number = NaN;
          var _loc3_:Number = NaN;
          var _loc4_:Number = NaN;
          var _loc5_:int = 0;
@@ -399,25 +462,29 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
             this.m_AutoTanZ = _loc8_ / _loc9_;
          }
          _loc10_ = _loc1_.currState.vel.length;
-         _loc18_ = AUTO_EXTRA[this.m_AutoIdx] == 1 && AUTO_EXTRA[(this.m_AutoIdx + 1) % _loc2_] == 1 && AUTO_EXTRA[(this.m_AutoIdx + 2) % _loc2_] == 1;
-         _loc19_ = this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,this.m_AutoShift,0,1700,240);
+         if(this.m_AutoCool > 0)
+         {
+            this.m_AutoCool--;
+         }
+         _loc18_ = AUTO_EXTRA[this.m_AutoIdx] == 1 && AUTO_EXTRA[(this.m_AutoIdx + 1) % _loc2_] == 1 && AUTO_EXTRA[(this.m_AutoIdx + 2) % _loc2_] == 1 && AUTO_SPEED[this.m_AutoIdx] >= 150;
+         _loc19_ = this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,this.m_AutoShift + this.m_AutoCardShift,0,2200,230);
          _loc20_ = this.m_AutoBlockDist;
          _loc21_ = this.m_AutoBlockSpeed;
          if(this.m_AutoShiftTarget == 0)
          {
-            if(_loc19_ && _loc21_ < _loc10_ + 15 && _loc21_ >= 30 && _loc18_ && !this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,460,-500,1500,260))
+            if(_loc19_ && _loc21_ < _loc10_ - 15 && _loc18_ && !this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,600,-500,1700,240))
             {
-               this.m_AutoShiftTarget = 460;
-               this.m_AutoHold = 36;
+               this.m_AutoShiftTarget = 600;
+               this.m_AutoHold = 45;
             }
          }
          else if(!_loc18_)
          {
             this.m_AutoShiftTarget = 0;
          }
-         else if(this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,0,-450,900,260))
+         else if(this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,0,-500,1000,260))
          {
-            this.m_AutoHold = 24;
+            this.m_AutoHold = 30;
          }
          else if(this.m_AutoHold > 0)
          {
@@ -429,15 +496,24 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          }
          if(this.m_AutoShift < this.m_AutoShiftTarget)
          {
-            this.m_AutoShift = Math.min(this.m_AutoShiftTarget,this.m_AutoShift + 35);
+            this.m_AutoShift = Math.min(this.m_AutoShiftTarget,this.m_AutoShift + 36);
          }
          else if(this.m_AutoShift > this.m_AutoShiftTarget)
          {
-            this.m_AutoShift = Math.max(this.m_AutoShiftTarget,this.m_AutoShift - 35);
+            this.m_AutoShift = Math.max(this.m_AutoShiftTarget,this.m_AutoShift - 36);
          }
-         _loc22_ = this.m_AutoTanZ * this.m_AutoShift;
-         _loc23_ = -this.m_AutoTanX * this.m_AutoShift;
-         _loc11_ = Math.max(450,Math.min(1000,_loc10_ * 3));
+         _loc24_ = this.AutoCardShift(_loc3_,_loc4_,this.m_AutoShift + this.m_AutoCardShift);
+         if(this.m_AutoCardShift < _loc24_)
+         {
+            this.m_AutoCardShift = Math.min(_loc24_,this.m_AutoCardShift + 22);
+         }
+         else if(this.m_AutoCardShift > _loc24_)
+         {
+            this.m_AutoCardShift = Math.max(_loc24_,this.m_AutoCardShift - 22);
+         }
+         _loc22_ = this.m_AutoTanZ * (this.m_AutoShift + this.m_AutoCardShift);
+         _loc23_ = -this.m_AutoTanX * (this.m_AutoShift + this.m_AutoCardShift);
+         _loc11_ = Math.max(@LA_MIN@,Math.min(@LA_MAX@,_loc10_ * @LA_K@));
          _loc12_ = _loc1_.m_Direction.x;
          _loc13_ = _loc1_.m_Direction.z;
          _loc14_ = Math.sqrt(_loc12_ * _loc12_ + _loc13_ * _loc13_);
@@ -453,15 +529,15 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          }
          this.AutoPointAhead(this.m_AutoIdx,_loc6_,_loc11_);
          _loc15_ = this.AutoSignedAngle(_loc12_,_loc13_,this.m_AutoPX + _loc22_ - _loc3_,this.m_AutoPZ + _loc23_ - _loc4_);
-         this.AutoPointAhead(this.m_AutoIdx,_loc6_,2000);
-         _loc16_ = Math.abs(this.AutoSignedAngle(_loc12_,_loc13_,this.m_AutoPX + _loc22_ - _loc3_,this.m_AutoPZ + _loc23_ - _loc4_));
-         _loc17_ = Math.max(-40,Math.min(40,_loc15_ * 0.4));
+         _loc17_ = Math.max(-@TCAP@,Math.min(@TCAP@,_loc15_ * @GAIN@));
+         _loc17_ = this.m_AutoPrevTurn + Math.max(-4,Math.min(4,_loc17_ - this.m_AutoPrevTurn));
+         this.m_AutoPrevTurn = _loc17_;
          _loc1_.currState.pose.y += _loc17_;
-         if(_loc10_ > 150 && (_loc16_ > 40 || Math.abs(_loc15_) > 28))
+         if(Math.abs(_loc15_) > 70 && _loc10_ > 100)
          {
             _loc1_.SpeedDown();
          }
-         else if(_loc10_ > 110 && (_loc16_ > 22 || Math.abs(_loc15_) > 12))
+         else if(Math.abs(_loc15_) > 35 && _loc10_ > 150)
          {
             _loc1_.StopAccel();
          }
@@ -469,19 +545,12 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
          {
             _loc1_.SpeedUp();
          }
-         if(_loc19_ && _loc21_ >= 30 && _loc21_ < _loc10_ && this.m_AutoShiftTarget == this.m_AutoShift)
+         if(_loc19_ && _loc21_ < _loc10_ && this.m_AutoShiftTarget == 0 && this.m_AutoShift == 0 && _loc20_ < 180)
          {
-            if(_loc20_ < 450 && _loc10_ > 60)
-            {
-               _loc1_.SpeedDown();
-            }
-            else if(_loc20_ < 900)
-            {
-               _loc1_.StopAccel();
-            }
+            _loc1_.StopAccel();
          }
       }
-
+      
       private function IsAutoDriveGhostPair(param1:RGameEnt, param2:RGameEnt) : Boolean
       {
          var _loc3_:RGameEnt = null;
@@ -565,6 +634,9 @@ funcs_new = """      private function RecordCheatKey(param1:Number) : void
 
       public function addOil() : void
 """
+
+for _k, _v in (("@LA_MIN@", PARAMS["la_min"]), ("@LA_MAX@", PARAMS["la_max"]), ("@LA_K@", PARAMS["la_k"]), ("@TCAP@", PARAMS["tcap"]), ("@GAIN@", PARAMS["gain"])):
+    funcs_new = funcs_new.replace(_k, str(_v))
 
 patch(gc, [
     (fields_old, fields_new),
