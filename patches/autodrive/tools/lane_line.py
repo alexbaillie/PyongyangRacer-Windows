@@ -764,6 +764,19 @@ for (ws, we) in runs:
             if math.hypot(lane[q % nstat][0] - c_[0], lane[q % nstat][1] - c_[1]) < CIRCLE_ZONE and c_ not in win_circles: win_circles.append(c_)
     has_circle = len(win_circles) > 0
     print('  [window %d..%d around circle %s: anchors a1=(%.0f,%.0f) b0=(%.0f,%.0f)]' % (ws, we, ('(%.0f,%.0f)' % win_circles[0][:2]) if win_circles else 'none', lane[ia][0], lane[ia][1], lane[ib][0], lane[ib][1]))
+    if has_circle:
+        da_ = (lane[ia][0] - lane[(ia - 1) % nstat][0], lane[ia][1] - lane[(ia - 1) % nstat][1])
+        db_ = (lane[(ib + 1) % nstat][0] - lane[ib][0], lane[(ib + 1) % nstat][1] - lane[ib][1])
+        turn_c = abs(math.degrees(math.atan2(da_[0] * db_[1] - da_[1] * db_[0], da_[0] * db_[0] + da_[1] * db_[1])))
+        if turn_c < 35.0:
+            chord = resample([lane[ia], lane[ib]], 140.0)
+            cu = (lane[ib][0] - lane[ia][0], lane[ib][1] - lane[ia][1]); cl = math.hypot(*cu) or 1.0; cu = (cu[0] / cl, cu[1] / cl)
+            bad_c = [q for q in chord if rclr(*q) < 300 or wall_clear(q, 400) < 230 or side_bad(q, cu)]
+            for q in bad_c: print("     bad chord point (%.0f,%.0f) rclr %.0f wall %.0f side_bad %s" % (q[0], q[1], rclr(*q), wall_clear(q, 400), side_bad(q, cu)))
+            print("  window %d..%d: straight through the circle (turn %.0f deg), chord check: %d of %d points unusable" % (ws, we, turn_c, len(bad_c), len(chord)))
+            if not bad_c:
+                repl_by_start[ws] = (we, chord[1:-1])
+                continue
     if len(win_circles) == 1:
         jp = junction_path(ia, ib, win_circles[0])
         if jp is not None:
@@ -1001,7 +1014,7 @@ for omega in (0.12, 0.16, 0.2, 0.25):
     for LA_MIN in (250,):
         for LA_MAX in (900,):
             for LA_K in (3.0,):
-                for GAIN in (0.3, 0.4):
+                for GAIN in (0.4,):
                     r = simulate((LA_MIN, LA_MAX, LA_K, GAIN, 40), caps); r['omega'] = omega
                     table.append(r)
                     ok = r['finished'] and r['guard'] == 0 and r['offroad'] == 0 and r['minclr'] >= 110 and r["minyel"] >= 45
