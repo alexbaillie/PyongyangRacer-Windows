@@ -71,6 +71,10 @@ fields_new = fields_old + """
       private var m_AutoCardShift:Number = 0;
 
       private var m_AutoPrevTurn:Number = 0;
+
+      private var m_AutoBlend:Number = 0;
+
+      private var m_AutoBlendInit:Boolean = false;
 """
 
 keydown_old = """      public function KeyDownHandler(param1:KeyboardEvent) : void
@@ -199,6 +203,8 @@ funcs_new = """      private function TryToggleAutoDrive() : void
             this.m_AutoCool = 0;
             this.m_AutoCardShift = 0;
             this.m_AutoPrevTurn = 0;
+            this.m_AutoBlend = 0;
+            this.m_AutoBlendInit = true;
             this.m_AutoHold = 0;
             this.SetAutoBoost(true);
             this.ShowCheatMessage("Autodrive + unlimited fuel + 50% speed enabled");
@@ -386,7 +392,7 @@ funcs_new = """      private function TryToggleAutoDrive() : void
                _loc9_ = _loc5_.currState.loc.z - param2;
                _loc10_ = _loc8_ * this.m_AutoTanX + _loc9_ * this.m_AutoTanZ;
                _loc11_ = _loc8_ * this.m_AutoTanZ - _loc9_ * this.m_AutoTanX;
-               if(_loc10_ > -300 && _loc10_ < 5200 && Math.abs(_loc11_) < 950 && _loc10_ < _loc6_)
+               if(_loc10_ > -300 && _loc10_ < 7500 && Math.abs(_loc11_) < 950 && _loc10_ < _loc6_)
                {
                   _loc6_ = _loc10_;
                   _loc7_ = param3 + _loc11_;
@@ -484,12 +490,12 @@ funcs_new = """      private function TryToggleAutoDrive() : void
             this.m_AutoCool--;
          }
          _loc18_ = AUTO_EXTRA[this.m_AutoIdx] == 1 && AUTO_EXTRA[(this.m_AutoIdx + 1) % _loc2_] == 1 && AUTO_EXTRA[(this.m_AutoIdx + 2) % _loc2_] == 1 && AUTO_SPEED[this.m_AutoIdx] >= 150;
-         _loc19_ = this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,this.m_AutoShift + this.m_AutoCardShift,0,2200,230);
+         _loc19_ = this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,this.m_AutoShift + this.m_AutoCardShift,0,2200 + _loc10_ * 12,230);
          _loc20_ = this.m_AutoBlockDist;
          _loc21_ = this.m_AutoBlockSpeed;
          if(this.m_AutoShiftTarget == 0)
          {
-            if(_loc19_ && _loc21_ < _loc10_ - 15 && _loc18_ && !this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,600,-500,1700,240))
+            if(_loc19_ && _loc21_ < _loc10_ - 15 && _loc18_ && !this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,600,-700,8000,300))
             {
                this.m_AutoShiftTarget = 600;
                this.m_AutoHold = 45;
@@ -520,16 +526,31 @@ funcs_new = """      private function TryToggleAutoDrive() : void
             this.m_AutoShift = Math.max(this.m_AutoShiftTarget,this.m_AutoShift - 36);
          }
          _loc24_ = this.AutoCardShift(_loc3_,_loc4_,this.m_AutoShift + this.m_AutoCardShift);
+         if(_loc24_ < -45 && this.AutoScanCars(_loc3_,_loc4_,this.m_AutoTanX,this.m_AutoTanZ,-330,-900,9000,330))
+         {
+            _loc24_ = Math.max(_loc24_,-45);
+         }
          if(this.m_AutoCardShift < _loc24_)
          {
-            this.m_AutoCardShift = Math.min(_loc24_,this.m_AutoCardShift + 40);
+            this.m_AutoCardShift = Math.min(_loc24_,this.m_AutoCardShift + 20);
          }
          else if(this.m_AutoCardShift > _loc24_)
          {
-            this.m_AutoCardShift = Math.max(_loc24_,this.m_AutoCardShift - 40);
+            this.m_AutoCardShift = Math.max(_loc24_,this.m_AutoCardShift - 20);
          }
-         _loc22_ = this.m_AutoTanZ * (this.m_AutoShift + this.m_AutoCardShift);
-         _loc23_ = -this.m_AutoTanX * (this.m_AutoShift + this.m_AutoCardShift);
+         if(this.m_AutoBlendInit)
+         {
+            this.m_AutoBlendInit = false;
+            this.AutoPointAhead(this.m_AutoIdx,_loc6_,0);
+            this.m_AutoBlend = (_loc3_ - this.m_AutoPX) * this.m_AutoTanZ - (_loc4_ - this.m_AutoPZ) * this.m_AutoTanX;
+            if(this.m_AutoBlend > 500 || this.m_AutoBlend < -500)
+            {
+               this.m_AutoBlend = 0;
+            }
+         }
+         this.m_AutoBlend *= 0.96;
+         _loc22_ = this.m_AutoTanZ * (this.m_AutoShift + this.m_AutoCardShift + this.m_AutoBlend);
+         _loc23_ = -this.m_AutoTanX * (this.m_AutoShift + this.m_AutoCardShift + this.m_AutoBlend);
          _loc11_ = Math.max(@LA_MIN@,Math.min(@LA_MAX@,_loc10_ * @LA_K@));
          _loc12_ = _loc1_.m_Direction.x;
          _loc13_ = _loc1_.m_Direction.z;
@@ -550,11 +571,13 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          _loc17_ = this.m_AutoPrevTurn + Math.max(-3,Math.min(3,_loc17_ - this.m_AutoPrevTurn));
          this.m_AutoPrevTurn = _loc17_;
          _loc1_.currState.pose.y += _loc17_;
-         if(Math.abs(_loc15_) > 70 && _loc10_ > 100)
+         _loc25_ = Math.min(Math.min(AUTO_SPEED[this.m_AutoIdx],AUTO_SPEED[(this.m_AutoIdx + 1) % _loc2_]),Math.min(AUTO_SPEED[(this.m_AutoIdx + 2) % _loc2_],AUTO_SPEED[(this.m_AutoIdx + 3) % _loc2_]));
+         _loc25_ *= 1 + 0.5 * Math.max(0,Math.min(1,(_loc25_ - 160) / 140));
+         if(Math.abs(_loc15_) > 70 && _loc10_ > 100 || _loc10_ > _loc25_ + 30)
          {
             _loc1_.SpeedDown();
          }
-         else if(Math.abs(_loc15_) > 35 && _loc10_ > 150)
+         else if(Math.abs(_loc15_) > 35 && _loc10_ > 150 || _loc10_ > _loc25_)
          {
             _loc1_.StopAccel();
          }
@@ -562,12 +585,19 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          {
             _loc1_.SpeedUp();
          }
-         if(_loc19_ && _loc21_ < _loc10_ && this.m_AutoShiftTarget == 0 && this.m_AutoShift == 0 && _loc20_ < 180)
+         if(_loc19_ && _loc21_ < _loc10_ && this.m_AutoShiftTarget == 0 && this.m_AutoShift < 40)
          {
-            _loc1_.StopAccel();
+            if(_loc20_ < 500 && _loc10_ > _loc21_ + 40)
+            {
+               _loc1_.SpeedDown();
+            }
+            else if(_loc20_ < 1800 && _loc10_ > _loc21_ + 10)
+            {
+               _loc1_.StopAccel();
+            }
          }
       }
-      
+
       private function IsAutoDriveGhostPair(param1:RGameEnt, param2:RGameEnt) : Boolean
       {
          var _loc3_:RGameEnt = null;
