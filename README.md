@@ -46,6 +46,8 @@ The Mac build runs the game in [Ruffle](https://ruffle.rs), an open-source Flash
 
 **Autodrive cheat.** During a race, press **F**. The car then drives itself round the course, 50% faster than normal, in the lane just right of the yellow centre line, never leaves the road, only changes lane to get past a slower car, and never runs out of fuel. A message on screen confirms it. Press **F** again to take back control.
 
+**Music.** Click the gear next to "go now!" on the start screen to turn the music on or off. Your choice is remembered.
+
 ## Troubleshooting
 
 **"Windows protected your PC" (blue SmartScreen box)**

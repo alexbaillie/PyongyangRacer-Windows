@@ -43,5 +43,5 @@ function Build-Swf {
     }
 }
 
-Build-Swf -PatchSets @('autodrive') -OutFile (Join-Path $repoRoot 'pyracer.swf')
-Build-Swf -PatchSets @('ruffle', 'autodrive') -OutFile (Join-Path $repoRoot 'ruffle\pyracer.swf')
+Build-Swf -PatchSets @('autodrive', 'settings') -OutFile (Join-Path $repoRoot 'pyracer.swf')
+Build-Swf -PatchSets @('ruffle', 'autodrive', 'settings') -OutFile (Join-Path $repoRoot 'ruffle\pyracer.swf')

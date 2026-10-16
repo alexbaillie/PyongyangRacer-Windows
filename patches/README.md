@@ -6,11 +6,18 @@ this folder, using [JPEXS Free Flash Decompiler](https://github.com/jindrapetrik
 
 | Build | Patches applied | Shipped in |
 |---|---|---|
-| `pyracer.swf` (repository root) | `autodrive` | Windows package (Adobe Flash projector) |
-| `ruffle/pyracer.swf` | `ruffle` + `autodrive` | macOS package (Ruffle) |
+| `pyracer.swf` (repository root) | `autodrive` + `settings` | Windows package (Adobe Flash projector) |
+| `ruffle/pyracer.swf` | `ruffle` + `autodrive` + `settings` | macOS package (Ruffle) |
 
 Nothing outside the listed classes is touched. Tracks, data files, physics and
 the computer cars are the original game's.
+
+## settings
+
+A gear button on the start screen, to the left of "go now!", drawn in the same orange style.
+Clicking it opens a small panel with a **Music** ON/OFF switch. The choice is saved
+(Flash shared object `pyracerSettings`) and applied to the menu, in-game and result music.
+Sound effects are not affected. Files: `settings/Menu/StartDlg.as`, `settings/common/RGameCommon.as`.
 
 ## autodrive
 
