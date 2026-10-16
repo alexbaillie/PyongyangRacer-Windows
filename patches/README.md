@@ -12,13 +12,12 @@ this folder, using [JPEXS Free Flash Decompiler](https://github.com/jindrapetrik
 Nothing outside the listed classes is touched. Tracks, data files, physics and
 the computer cars are the original game's.
 
-## car hits
+## loading-screen tip
 
-The loading screen says that hitting ten vehicles gets you stopped for bad driving, but the original
-game only stopped you after three barrier crashes. `RCar.CollisionProc` now calls
-`RGameClient.RegisterCarHit()` when the player's car hits another car (once per collision, not while
-autodrive is on). It shows "Car hits n / 10" and, on the tenth, opens the same "stopped for bad driving"
-window as the third barrier crash.
+The original loading screen says "If you hit ten vehicles you will be stopped for bad driving", but the
+game stops you after three warnings (the 0/3 counter), and another screen in the same SWF says three.
+`patches/textures/patch_tip.py` edits the tip's glyph list so it says "three". `build.ps1` runs it
+after building both SWFs.
 
 ## settings
 

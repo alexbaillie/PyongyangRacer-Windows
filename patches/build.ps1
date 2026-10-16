@@ -45,3 +45,12 @@ function Build-Swf {
 
 Build-Swf -PatchSets @('autodrive', 'settings') -OutFile (Join-Path $repoRoot 'pyracer.swf')
 Build-Swf -PatchSets @('ruffle', 'autodrive', 'settings') -OutFile (Join-Path $repoRoot 'ruffle\pyracer.swf')
+
+# Loading-screen tip: ten -> three (needs Python 3)
+if (Get-Command python -ErrorAction SilentlyContinue) {
+    foreach ($swf in @((Join-Path $repoRoot 'pyracer.swf'), (Join-Path $repoRoot 'ruffle\pyracer.swf'))) {
+        & python (Join-Path $patchesDir 'textures\patch_tip.py') $swf $swf
+    }
+} else {
+    Write-Warning 'Python not found: the loading-screen tip still says ten vehicles.'
+}
