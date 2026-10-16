@@ -218,6 +218,8 @@ package player
 
       private var m_FHeld:Boolean = false;
 
+      private var m_AutoPending:Boolean = false;
+
       private var m_CheatMsg:Sprite = null;
 
       private var m_CheatMsgText:TextField = null;
@@ -1024,6 +1026,11 @@ package player
       
       public function HandleInputLoop() : void
       {
+         if(this.m_AutoPending && this.m_RenderMode == RENDER_PLAYING && !this.m_AutoDrive && !this.pause)
+         {
+            this.m_AutoPending = false;
+            this.ToggleAutoDrive();
+         }
          if(this.m_RenderMode != RENDER_PLAYING)
          {
             return;
@@ -1724,6 +1731,12 @@ package player
       
       private function TryToggleAutoDrive() : void
       {
+         if(this.m_RenderMode == RENDER_READY && this.m_CarList.length > this.m_PlayerID)
+         {
+            this.m_AutoPending = !this.m_AutoPending;
+            this.ShowCheatMessage(this.m_AutoPending ? "Autodrive will start with the race" : "Autodrive cancelled",3000);
+            return;
+         }
          if(this.m_RenderMode == RENDER_PLAYING && !this.pause && this.m_CarList.length > this.m_PlayerID)
          {
             this.ToggleAutoDrive();
@@ -2155,6 +2168,7 @@ package player
 
       private function ResetAutoDrive() : void
       {
+         this.m_AutoPending = false;
          this.SetAutoBoost(false);
          this.m_AutoDrive = false;
          this.m_CheatBuf.splice(0);

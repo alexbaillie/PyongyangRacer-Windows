@@ -30,6 +30,8 @@ fields_new = fields_old + """
 
       private var m_FHeld:Boolean = false;
 
+      private var m_AutoPending:Boolean = false;
+
       private var m_CheatMsg:Sprite = null;
 
       private var m_CheatMsgText:TextField = null;
@@ -98,7 +100,12 @@ input_old = """         if(this.m_RenderMode != RENDER_PLAYING || this.m_CarList
             return;
          }
 """
-input_new = """         if(this.m_RenderMode != RENDER_PLAYING)
+input_new = """         if(this.m_AutoPending && this.m_RenderMode == RENDER_PLAYING && !this.m_AutoDrive && !this.pause)
+         {
+            this.m_AutoPending = false;
+            this.ToggleAutoDrive();
+         }
+         if(this.m_RenderMode != RENDER_PLAYING)
          {
             return;
          }
@@ -182,6 +189,12 @@ destroy_new = """      public function DestroyScene() : void
 funcs_old = "      public function addOil() : void\n"
 funcs_new = """      private function TryToggleAutoDrive() : void
       {
+         if(this.m_RenderMode == RENDER_READY && this.m_CarList.length > this.m_PlayerID)
+         {
+            this.m_AutoPending = !this.m_AutoPending;
+            this.ShowCheatMessage(this.m_AutoPending ? "Autodrive will start with the race" : "Autodrive cancelled",3000);
+            return;
+         }
          if(this.m_RenderMode == RENDER_PLAYING && !this.pause && this.m_CarList.length > this.m_PlayerID)
          {
             this.ToggleAutoDrive();
@@ -613,6 +626,7 @@ funcs_new = """      private function TryToggleAutoDrive() : void
 
       private function ResetAutoDrive() : void
       {
+         this.m_AutoPending = false;
          this.SetAutoBoost(false);
          this.m_AutoDrive = false;
          this.m_CheatBuf.splice(0);
