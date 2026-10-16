@@ -650,12 +650,12 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          ++this.m_CarHits;
          if(this.m_CarHits >= 10)
          {
-            this.ShowCheatMessage("Car hits 10 / 10");
+            this.ShowCheatMessage("Car hits 10 / 10",3000);
             this.QuitWindowFunc(3);
          }
          else
          {
-            this.ShowCheatMessage("Car hits " + this.m_CarHits + " / 10");
+            this.ShowCheatMessage("Car hits " + this.m_CarHits + " / 10",3000);
          }
       }
 
@@ -669,7 +669,7 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          this.HideCheatMessage();
       }
 
-      private function ShowCheatMessage(param1:String) : void
+      private function ShowCheatMessage(param1:String, param2:int = 5000) : void
       {
          var _loc2_:TextFormat = null;
          var _loc3_:Number = NaN;
@@ -704,7 +704,7 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          {
             clearTimeout(this.m_CheatMsgTimer);
          }
-         this.m_CheatMsgTimer = setTimeout(this.HideCheatMessage,5000);
+         this.m_CheatMsgTimer = setTimeout(this.HideCheatMessage,param2);
       }
 
       private function HideCheatMessage() : void
