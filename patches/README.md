@@ -35,7 +35,7 @@ confirms each change for five seconds.
 While on:
 
 - Losing window focus no longer pauses the game; Escape still opens the pause menu.
-- The car's top speed and acceleration are raised by 50% (max 300 to 450).
+- The 50% speed boost (max speed 300 to 450, acceleration raised too) is a separate toggle on the **G** key and works with or without autodrive.
 
 - The car drives itself along a pre-computed **right-hand-lane line**: the lane
   immediately to the right of the double yellow centre line, all the way round

@@ -33,7 +33,7 @@ To change game logic: decompile `patches/original/pyracer.swf` with FFDec (`-exp
 
 - Windows: double-click `Launch Pyongyang Racer.exe`, or run it from PowerShell. It writes `launch.log` (git-ignored); check it for 404s and errors.
 - macOS build: open `ruffle/pyracer.swf` in Ruffle 0.6.0 (File > Open).
-- After any SWF change, play a race in both players. The autodrive cheat is toggled with the F key.
+- After any SWF change, play a race in both players. Autodrive + unlimited fuel is toggled with the F key and the 50% speed boost with the G key.
 
 ## Release
 

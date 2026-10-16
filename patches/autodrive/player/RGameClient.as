@@ -218,6 +218,10 @@ package player
 
       private var m_FHeld:Boolean = false;
 
+      private var m_GHeld:Boolean = false;
+
+      private var m_BoostOn:Boolean = false;
+
       private var m_AutoPending:Boolean = false;
 
       private var m_CheatMsg:Sprite = null;
@@ -946,6 +950,11 @@ package player
             this.m_FHeld = true;
             this.TryToggleAutoDrive();
          }
+         else if(param1.keyCode == 71 && !this.m_GHeld)
+         {
+            this.m_GHeld = true;
+            this.TryToggleBoost();
+         }
          switch(param1.keyCode)
          {
             case Keyboard.UP:
@@ -974,6 +983,10 @@ package player
          if(param1.keyCode == 70)
          {
             this.m_FHeld = false;
+         }
+         else if(param1.keyCode == 71)
+         {
+            this.m_GHeld = false;
          }
          switch(param1.keyCode)
          {
@@ -1734,13 +1747,50 @@ package player
          if(this.m_RenderMode == RENDER_READY && this.m_CarList.length > this.m_PlayerID)
          {
             this.m_AutoPending = !this.m_AutoPending;
-            this.ShowCheatMessage(this.m_AutoPending ? "Autodrive will start with the race" : "Autodrive cancelled",3000);
+            this.ShowFeatureMessage(true,this.m_AutoPending);
             return;
          }
          if(this.m_RenderMode == RENDER_PLAYING && !this.pause && this.m_CarList.length > this.m_PlayerID)
          {
             this.ToggleAutoDrive();
          }
+      }
+
+      private function TryToggleBoost() : void
+      {
+         if((this.m_RenderMode == RENDER_READY || this.m_RenderMode == RENDER_PLAYING && !this.pause) && this.m_CarList.length > this.m_PlayerID)
+         {
+            this.m_BoostOn = !this.m_BoostOn;
+            this.SetAutoBoost(this.m_BoostOn);
+            this.ShowFeatureMessage(false,this.m_BoostOn);
+         }
+      }
+
+      private function ShowFeatureMessage(param1:Boolean, param2:Boolean) : void
+      {
+         var _loc3_:String = "";
+         var _loc4_:Boolean = this.m_AutoDrive || this.m_AutoPending;
+         if(_loc4_)
+         {
+            _loc3_ = "Autodrive + unlimited fuel";
+         }
+         if(this.m_BoostOn)
+         {
+            _loc3_ += (_loc3_ == "" ? "" : " + ") + "50% speed boost";
+         }
+         if(_loc3_ == "")
+         {
+            _loc3_ = (param1 ? "Autodrive + unlimited fuel" : "50% speed boost") + " disabled";
+         }
+         else if(param2 && (param1 && !this.m_BoostOn || !param1 && !_loc4_))
+         {
+            _loc3_ += " enabled";
+         }
+         if(this.m_AutoPending && !this.m_AutoDrive)
+         {
+            _loc3_ += " (autodrive starts with the race)";
+         }
+         this.ShowCheatMessage(_loc3_);
       }
 
       public function ToggleAutoDrive() : void
@@ -1761,15 +1811,13 @@ package player
             this.m_AutoBlend = 0;
             this.m_AutoBlendInit = true;
             this.m_AutoHold = 0;
-            this.SetAutoBoost(true);
-            this.ShowCheatMessage("Autodrive + unlimited fuel + 50% speed enabled");
+            this.ShowFeatureMessage(true,true);
          }
          else
          {
             _loc1_.StopAccel();
             _loc1_.ReturnCenter();
-            this.SetAutoBoost(false);
-            this.ShowCheatMessage("Autodrive + unlimited fuel + 50% speed disabled");
+            this.ShowFeatureMessage(true,false);
          }
       }
 
@@ -2168,6 +2216,7 @@ package player
 
       private function ResetAutoDrive() : void
       {
+         this.m_BoostOn = false;
          this.m_AutoPending = false;
          this.SetAutoBoost(false);
          this.m_AutoDrive = false;
