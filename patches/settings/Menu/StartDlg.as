@@ -3,6 +3,7 @@ package Menu
    import flash.display.*;
    import flash.events.*;
    import flash.filters.DropShadowFilter;
+   import flash.filters.GlowFilter;
    import flash.geom.Rectangle;
    import flash.text.*;
 
@@ -52,18 +53,31 @@ package Menu
 
       private function DrawBox(param1:Graphics, param2:Number, param3:Number) : void
       {
-         var _loc4_:Number = param3 * 0.17;
+         var _loc4_:Number = param3 * 0.31;
          param1.beginFill(14248448);
          param1.drawRoundRect(0,0,param2,param3,_loc4_,_loc4_);
          param1.endFill();
          param1.beginFill(16777215);
-         param1.drawRoundRect(param3 * 0.04,param3 * 0.04,param2 - param3 * 0.08,param3 - param3 * 0.08,_loc4_ * 0.8,_loc4_ * 0.8);
+         param1.drawRoundRect(param3 * 0.045,param3 * 0.045,param2 - param3 * 0.09,param3 - param3 * 0.09,_loc4_ * 0.84,_loc4_ * 0.84);
          param1.endFill();
          param1.beginFill(16746771);
-         param1.drawRoundRect(param3 * 0.08,param3 * 0.08,param2 - param3 * 0.16,param3 - param3 * 0.16,_loc4_ * 0.6,_loc4_ * 0.6);
+         param1.drawRoundRect(param3 * 0.095,param3 * 0.095,param2 - param3 * 0.19,param3 - param3 * 0.19,_loc4_ * 0.66,_loc4_ * 0.66);
          param1.endFill();
       }
-
+      
+      private function AddShade(param1:Sprite, param2:Number, param3:Number) : void
+      {
+         var _loc4_:Sprite = new Sprite();
+         var _loc5_:Number = param3 * 0.31 * 0.66;
+         _loc4_.graphics.beginFill(16746771);
+         _loc4_.graphics.drawRoundRect(param3 * 0.095,param3 * 0.095,param2 - param3 * 0.19,param3 - param3 * 0.19,_loc5_,_loc5_);
+         _loc4_.graphics.endFill();
+         _loc4_.filters = [new GlowFilter(12411904,0.8,8,8,1.7,2,true,false)];
+         _loc4_.mouseEnabled = false;
+         param1.addChild(_loc4_);
+         param1.filters = [new DropShadowFilter(4,45,3942400,0.4,6,6)];
+      }
+      
       private function DrawGear(param1:Graphics, param2:Number, param3:Number, param4:Number) : void
       {
          var _loc5_:Number = param4 * 0.26;
@@ -112,9 +126,10 @@ package Menu
          _loc2_ = _loc1_.height;
          this.m_Gear = new Sprite();
          this.DrawBox(this.m_Gear.graphics,_loc2_,_loc2_);
+         this.AddShade(this.m_Gear,_loc2_,_loc2_);
          _loc3_ = new Sprite();
          this.DrawGear(_loc3_.graphics,_loc2_ / 2,_loc2_ / 2,_loc2_);
-         _loc3_.filters = [new DropShadowFilter(3,45,9846784,0.6,3,3)];
+         _loc3_.filters = [new DropShadowFilter(4,45,10502144,0.5,5,5)];
          _loc3_.mouseEnabled = false;
          this.m_Gear.addChild(_loc3_);
          this.m_Gear.x = _loc1_.x - _loc2_ - 18;
@@ -125,6 +140,7 @@ package Menu
          this.m_Panel = new Sprite();
          this.m_Panel.visible = false;
          this.DrawBox(this.m_Panel.graphics,250,76);
+         this.AddShade(this.m_Panel,250,76);
          _loc6_ = new TextFormat("Arial",22,16777215,true);
          _loc5_ = new TextField();
          _loc5_.defaultTextFormat = _loc6_;
