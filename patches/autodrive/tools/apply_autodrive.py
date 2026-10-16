@@ -30,6 +30,10 @@ fields_new = fields_old + """
 
       private var m_FHeld:Boolean = false;
 
+      private var m_CarHits:int = 0;
+
+      private var m_LastCarHit:int = -100000;
+
       private var m_CheatMsg:Sprite = null;
 
       private var m_CheatMsgText:TextField = null;
@@ -635,8 +639,30 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          }
       }
 
+      public function RegisterCarHit() : void
+      {
+         var _loc1_:int = getTimer();
+         if(_loc1_ - this.m_LastCarHit < 1500 || this.m_AutoDrive)
+         {
+            return;
+         }
+         this.m_LastCarHit = _loc1_;
+         ++this.m_CarHits;
+         if(this.m_CarHits >= 10)
+         {
+            this.ShowCheatMessage("Car hits 10 / 10");
+            this.QuitWindowFunc(3);
+         }
+         else
+         {
+            this.ShowCheatMessage("Car hits " + this.m_CarHits + " / 10");
+         }
+      }
+
       private function ResetAutoDrive() : void
       {
+         this.m_CarHits = 0;
+         this.m_LastCarHit = -100000;
          this.SetAutoBoost(false);
          this.m_AutoDrive = false;
          this.m_CheatBuf.splice(0);
@@ -860,5 +886,13 @@ rtt_new = """      public function ReturnToTrack() : void
             return;
          }
 """
-patch(car, [(car_fields_old, car_fields_new), (act_old, act_new), (tick_old, tick_new), (rtt_old, rtt_new)])
+hit_old = """               _loc2_ = new REffectData(RSpecialEffectType.OBJECT_COLLISION_EFFECT,this.currState,param1.currState);
+               _loc2_.m_car = this;
+"""
+hit_new = """               if(this.m_ObjType == RObjectType.PLAYERCAR)
+               {
+                  RockRacer.GameCommon.GameClient.RegisterCarHit();
+               }
+""" + hit_old
+patch(car, [(car_fields_old, car_fields_new), (act_old, act_new), (tick_old, tick_new), (rtt_old, rtt_new), (hit_old, hit_new)])
 print("patched RGameClient.as and RCar.as (lane follower, %d line numbers)" % (AUTO_LINE.count(",") + 1))

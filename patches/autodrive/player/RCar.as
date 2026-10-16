@@ -2370,6 +2370,10 @@ package player
                      this.m_EffectSndChannel = this.m_Sound.play();
                   }
                }
+               if(this.m_ObjType == RObjectType.PLAYERCAR)
+               {
+                  RockRacer.GameCommon.GameClient.RegisterCarHit();
+               }
                _loc2_ = new REffectData(RSpecialEffectType.OBJECT_COLLISION_EFFECT,this.currState,param1.currState);
                _loc2_.m_car = this;
                RockRacer.GameCommon.GameClient.m_SpecialEffect.EffectProcess(_loc2_);

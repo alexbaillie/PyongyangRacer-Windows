@@ -218,6 +218,10 @@ package player
 
       private var m_FHeld:Boolean = false;
 
+      private var m_CarHits:int = 0;
+
+      private var m_LastCarHit:int = -100000;
+
       private var m_CheatMsg:Sprite = null;
 
       private var m_CheatMsgText:TextField = null;
@@ -2177,8 +2181,30 @@ package player
          }
       }
 
+      public function RegisterCarHit() : void
+      {
+         var _loc1_:int = getTimer();
+         if(_loc1_ - this.m_LastCarHit < 1500 || this.m_AutoDrive)
+         {
+            return;
+         }
+         this.m_LastCarHit = _loc1_;
+         ++this.m_CarHits;
+         if(this.m_CarHits >= 10)
+         {
+            this.ShowCheatMessage("Car hits 10 / 10");
+            this.QuitWindowFunc(3);
+         }
+         else
+         {
+            this.ShowCheatMessage("Car hits " + this.m_CarHits + " / 10");
+         }
+      }
+
       private function ResetAutoDrive() : void
       {
+         this.m_CarHits = 0;
+         this.m_LastCarHit = -100000;
          this.SetAutoBoost(false);
          this.m_AutoDrive = false;
          this.m_CheatBuf.splice(0);

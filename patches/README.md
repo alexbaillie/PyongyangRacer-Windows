@@ -12,6 +12,14 @@ this folder, using [JPEXS Free Flash Decompiler](https://github.com/jindrapetrik
 Nothing outside the listed classes is touched. Tracks, data files, physics and
 the computer cars are the original game's.
 
+## car hits
+
+The loading screen says that hitting ten vehicles gets you stopped for bad driving, but the original
+game only stopped you after three barrier crashes. `RCar.CollisionProc` now calls
+`RGameClient.RegisterCarHit()` when the player's car hits another car (once per collision, not while
+autodrive is on). It shows "Car hits n / 10" and, on the tenth, opens the same "stopped for bad driving"
+window as the third barrier crash.
+
 ## settings
 
 A gear button on the start screen, to the left of "go now!", drawn in the same orange style.
