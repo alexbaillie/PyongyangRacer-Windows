@@ -89,7 +89,13 @@ def avg_adv(ch):
 new = list(g[:i0])
 for ch in "three": new.append((cmap[ch][0][0], avg_adv(ch)))
 new += g[i0 + 3:]
-print("glyph run %d -> %d glyphs" % (len(g), len(new)))
+# keep the line exactly as wide as the original: the tip sits in a fixed-size mask, so squeeze the spacing
+orig_w = sum(a for _, a in g); new_w = sum(a for _, a in new)
+f = orig_w / float(new_w)
+squeezed = [(gi, int(round(a * f))) for gi, a in new]
+squeezed[-1] = (squeezed[-1][0], squeezed[-1][1] + (orig_w - sum(a for _, a in squeezed)))
+new = squeezed
+print("glyph run %d -> %d glyphs, width %d -> %d (squeeze %.3f)" % (len(g), len(new), orig_w, new_w, f))
 assert len(new) < 128
 out = bytearray(data[:pos - sum(0 for _ in [])])
 # rebuild the record stream
