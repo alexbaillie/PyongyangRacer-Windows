@@ -106,7 +106,7 @@ head_lines[a:b + 1] = offsets_block
 
 head = "\n".join(head_lines) + "\n"
 head = head.replace("DEFAULT_LANE = 460.0\n",
-    "DEFAULT_LANE = 460.0\nANCHOR = float(os.environ.get('ANCHOR', '85'))   # car centre sits this far right of the yellow line's edge\nSHIFT = 600.0                                      # lane-1 to lane-2 distance when overtaking\n", 1)
+    "DEFAULT_LANE = 460.0\nANCHOR = float(os.environ.get('ANCHOR', '135'))   # car centre sits this far right of the yellow line's edge\nSHIFT = 600.0                                      # lane-1 to lane-2 distance when overtaking\n", 1)
 head = head.replace("off < y0_by_station[k] + YELLOW_HALF + 100: continue", "off < y0_by_station[k] + YELLOW_HALF + 80: continue")
 head = head.replace("off < y0_by_station[k] + YELLOW_HALF + 100: return False", "off < y0_by_station[k] + YELLOW_HALF + 80: return False")
 assert head.count("YELLOW_HALF + 80") == 2 and "min(ANCHOR" in head, "head edits failed"

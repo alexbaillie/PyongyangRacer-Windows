@@ -131,6 +131,22 @@ keyup_new = """      public function KeyUpHandler(param1:KeyboardEvent) : void
          switch(param1.keyCode)
 """
 
+deact_old = """         this.KeyMask = 0;
+         this.preKeyMask = this.KeyMask;
+         if(RockRacer.GameCommon.g_SingleGame)
+         {
+            this.QuitWindowFunc();
+         }
+         else
+"""
+deact_new = """         this.KeyMask = 0;
+         this.preKeyMask = this.KeyMask;
+         if(RockRacer.GameCommon.g_SingleGame)
+         {
+         }
+         else
+"""
+
 restart_old = """         this.oil = this.maxOil;
          this.m_scMask.gotoAndStop(0);
 """
@@ -185,14 +201,14 @@ funcs_new = """      private function TryToggleAutoDrive() : void
             this.m_AutoPrevTurn = 0;
             this.m_AutoHold = 0;
             this.SetAutoBoost(true);
-            this.ShowCheatMessage("Autodrive + unlimited fuel + 75% speed enabled");
+            this.ShowCheatMessage("Autodrive + unlimited fuel + 50% speed enabled");
          }
          else
          {
             _loc1_.StopAccel();
             _loc1_.ReturnCenter();
             this.SetAutoBoost(false);
-            this.ShowCheatMessage("Autodrive + unlimited fuel + 75% speed disabled");
+            this.ShowCheatMessage("Autodrive + unlimited fuel + 50% speed disabled");
          }
       }
 
@@ -531,7 +547,7 @@ funcs_new = """      private function TryToggleAutoDrive() : void
          this.AutoPointAhead(this.m_AutoIdx,_loc6_,_loc11_);
          _loc15_ = this.AutoSignedAngle(_loc12_,_loc13_,this.m_AutoPX + _loc22_ - _loc3_,this.m_AutoPZ + _loc23_ - _loc4_);
          _loc17_ = Math.max(-@TCAP@,Math.min(@TCAP@,_loc15_ * @GAIN@));
-         _loc17_ = this.m_AutoPrevTurn + Math.max(-4,Math.min(4,_loc17_ - this.m_AutoPrevTurn));
+         _loc17_ = this.m_AutoPrevTurn + Math.max(-3,Math.min(3,_loc17_ - this.m_AutoPrevTurn));
          this.m_AutoPrevTurn = _loc17_;
          _loc1_.currState.pose.y += _loc17_;
          if(Math.abs(_loc15_) > 70 && _loc10_ > 100)
@@ -583,8 +599,8 @@ funcs_new = """      private function TryToggleAutoDrive() : void
             _loc2_ = this.m_CarList[this.m_PlayerID];
             if(_loc2_ != null)
             {
-               _loc2_.m_MaxVel = param1 ? 300 * 1.75 : 300;
-               _loc2_.m_Accel = param1 ? 20 * 1.75 : 20;
+               _loc2_.m_MaxVel = param1 ? 300 * 1.5 : 300;
+               _loc2_.m_Accel = param1 ? 20 * 1.5 : 20;
             }
          }
       }
@@ -658,6 +674,7 @@ patch(gc, [
     (fields_old, fields_new),
     (keydown_old, keydown_new),
     (keyup_old, keyup_new),
+    (deact_old, deact_new),
     (input_old, input_new),
     (coll_old, coll_new),
     (restart_old, restart_new),

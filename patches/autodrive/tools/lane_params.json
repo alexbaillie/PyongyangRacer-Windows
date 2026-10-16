@@ -1,1 +1,1 @@
-{"la_min": 250, "la_max": 900, "la_k": 3.0, "gain": 0.4, "tcap": 40, "shift": 600.0, "omega": 0.16, "lap_s": 463.3333333333333}
+{"la_min": 450, "la_max": 1400, "la_k": 4.0, "gain": 0.3, "tcap": 40, "shift": 600.0, "omega": 0.12, "lap_s": 467.25}

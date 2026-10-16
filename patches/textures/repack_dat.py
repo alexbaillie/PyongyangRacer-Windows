@@ -30,6 +30,7 @@ for k, ((name, t), b) in enumerate(zip(infos, blocks)):
     try: img = Image.open(io.BytesIO(b)); img.load()
     except Exception: continue
     if img.width * img.height > 600000: continue
+    if img.mode not in ('RGB', 'L'): continue   # keep textures with transparency (signs, poles) untouched
     y, w = has_markings(img)
     if y + w < 30: continue
     sharp = sharpen_markings(img.convert("RGB"))

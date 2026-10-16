@@ -20,7 +20,8 @@ confirms each change for five seconds.
 
 While on:
 
-- The car's top speed and acceleration are raised by 75% (max 300 to 525).
+- Losing window focus no longer pauses the game; Escape still opens the pause menu.
+- The car's top speed and acceleration are raised by 50% (max 300 to 450).
 
 - The car drives itself along a pre-computed **right-hand-lane line**: the lane
   immediately to the right of the double yellow centre line, all the way round

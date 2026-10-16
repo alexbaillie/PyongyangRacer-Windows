@@ -228,7 +228,7 @@ print("stations:", n, "on rerouted stretches:", sum(station_rerouted), "track le
 # ------------------------------------------------------------------ 3. yellow line & first lane mark per station
 YELLOW_HALF = 25.0
 DEFAULT_LANE = 460.0
-ANCHOR = float(os.environ.get('ANCHOR', '85'))   # car centre sits this far right of the yellow line's edge
+ANCHOR = float(os.environ.get('ANCHOR', '135'))   # car centre sits this far right of the yellow line's edge
 SHIFT = 600.0                                      # lane-1 to lane-2 distance when overtaking
 def measure(st, maxoff=450):
     x, z, ux, uz = st
@@ -1011,10 +1011,10 @@ def simulate(params, caps):
 best = None; table = []
 for omega in (0.12, 0.16, 0.2, 0.25):
     caps = curvature_caps(omega)
-    for LA_MIN in (250,):
-        for LA_MAX in (900,):
-            for LA_K in (3.0,):
-                for GAIN in (0.4,):
+    for LA_MIN in (450,):
+        for LA_MAX in (1400,):
+            for LA_K in (4.0,):
+                for GAIN in (0.3,):
                     r = simulate((LA_MIN, LA_MAX, LA_K, GAIN, 40), caps); r['omega'] = omega
                     table.append(r)
                     ok = r['finished'] and r['guard'] == 0 and r['offroad'] == 0 and r['minclr'] >= 110 and r["minyel"] >= 45
